@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Trader Survivor para Vercel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .step-content {
+            color: #555;
+            line-height: 1.6;
+            margin-left: 40px;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            background: #5a6268;
+        }
+
+        .button.success {
+            background: #28a745;
+        }
+
+        .button.success:hover {
+            background: #218838;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .help-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .help-box h3 {
+            color: #856404;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .help-box ul {
+            color: #856404;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        #output {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">⚙️</div>
+            <h1>Configurador de Trader Survivor</h1>
+            <p class="subtitle">Configura tu aplicación para Vercel sin tocar código</p>
+        </div>
+
+        <!-- PASO 1: Verificar Vercel -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Primero: Sube a Vercel
+            </div>
+            <div class="step-content">
+                <p>Antes de configurar, necesitas subir tu aplicación a Vercel:</p>
+                <br>
+                <p><strong>Opción Fácil:</strong></p>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    <li>Haz doble clic en: <code>SUBIR_A_VERCEL.bat</code></li>
+                    <li>Sigue las instrucciones</li>
+                    <li>Vercel te dará una URL</li>
+                </ul>
+                <br>
+                <p><strong>Opción Manual:</strong></p>
+                <ul style="margin-left: 20px; line-height: 1.8;">
+                    <li>Ve a <a href="https://vercel.com" target="_blank">vercel.com</a></li>
+                    <li>Sign up con GitHub</li>
+                    <li>Importa tu proyecto</li>
+                    <li>Deploy</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PASO 2: Configurar URL -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Configura tu URL de Vercel
+            </div>
+            <div class="step-content">
+                <div class="input-group">
+                    <label for="vercelURL">URL de tu aplicación en Vercel:</label>
+                    <input
+                        type="text"
+                        id="vercelURL"
+                        placeholder="https://trader-survivor-abc123.vercel.app"
+                        value="https://trader-survivor-abc123.vercel.app"
+                    >
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        Copia y pega la URL que Vercel te dio (sin el /api al final)
+                    </small>
+                </div>
+
+                <div class="input-group">
+                    <label for="environment">Entorno:</label>
+                    <select id="environment">
+                        <option value="production">Producción (Vercel)</option>
+                        <option value="development">Desarrollo (Local)</option>
+                    </select>
+                </div>
+
+                <button class="button success" onclick="generarConfiguracion()">
+                    ✨ Generar Configuración
+                </button>
+            </div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div id="output">
+            <div class="alert alert-success">
+                ✅ ¡Configuración generada correctamente!
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Copia este código
+                </div>
+                <div class="step-content">
+                    <p>Copia todo el código de abajo:</p>
+                    <div class="code" id="configCode">
+                        <!-- El código se genera aquí -->
+                    </div>
+                    <button class="button" onclick="copiarCodigo()">
+                        📋 Copiar al Portapapeles
+                    </button>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    Pégalo en config.js
+                </div>
+                <div class="step-content">
+                    <ol style="line-height: 1.8;">
+                        <li>Abre el archivo <strong>config.js</strong> con un editor de texto (Notepad, VSCode, etc.)</li>
+                        <li>Selecciona TODO el contenido (Ctrl+A)</li>
+                        <li>Bórralo</li>
+                        <li>Pega el código que copiaste (Ctrl+V)</li>
+                        <li>Guarda el archivo (Ctrl+S)</li>
+                    </ol>
+                    <br>
+                    <div class="help-box">
+                        <h3>💡 Tip:</h3>
+                        <ul>
+                            <li>Si no tienes config.js, créalo en la carpeta principal del proyecto</li>
+                            <li>Puedes usar Notepad (Bloc de notas) para editarlo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">5</span>
+                    Actualiza en Vercel
+                </div>
+                <div class="step-content">
+                    <p>Hay 2 formas de actualizar:</p>
+                    <br>
+                    <p><strong>Opción A - Automática (Recomendada):</strong></p>
+                    <ol style="line-height: 1.8; margin-left: 20px;">
+                        <li>Haz doble clic en <strong>SUBIR_A_VERCEL.bat</strong></li>
+                        <li>El script actualizará todo automáticamente</li>
+                        <li>¡Listo!</li>
+                    </ol>
+                    <br>
+                    <p><strong>Opción B - Manual:</strong></p>
+                    <div class="code">
+git add config.js<br>
+git commit -m "Actualizar configuración"<br>
+git push
+                    </div>
+                    <p>Vercel detectará el cambio y actualizará automáticamente.</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>🎉 ¡Ya está!</strong> Tu aplicación ahora usa la URL de producción de Vercel.
+                <br><br>
+                Abre tu aplicación en: <a href="#" id="appLink" target="_blank">Ver aplicación</a>
+            </div>
+        </div>
+
+        <!-- AYUDA -->
+        <div class="help-box">
+            <h3>❓ ¿Necesitas ayuda?</h3>
+            <ul>
+                <li>Si no tienes la URL de Vercel, primero ejecuta <strong>SUBIR_A_VERCEL.bat</strong></li>
+                <li>Si algo falla, verifica que la URL esté correcta (debe empezar con https://)</li>
+                <li>Para volver a desarrollo local, cambia el entorno a "Desarrollo (Local)"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function generarConfiguracion() {
+            const url = document.getElementById('vercelURL').value.trim();
+            const env = document.getElementById('environment').value;
+
+            // Validar URL
+            if (!url) {
+                alert('⚠️ Por favor ingresa la URL de Vercel');
+                return;
+            }
+
+            if (!url.startsWith('https://')) {
+                alert('⚠️ La URL debe empezar con https://');
+                return;
+            }
+
+            // Generar código
+            const apiURL = url + '/api';
+
+            const codigo = `/**
+ * Configuración de Trader Survivor
+ * Generado automáticamente por CONFIGURAR.html
+ * URL de Vercel: ${url}
+ * Entorno: ${env}
+ */
+
+const CONFIG = {
+    environment: '${env}',
+    localAPI: 'http://127.0.0.1:8003',
+    productionAPI: '${apiURL}',
+
+    getAPIURL() {
+        if (this.environment === 'production') {
+            return this.productionAPI;
+        }
+        return this.localAPI;
+    },
+
+    bingx: {
+        endpoint(path) {
+            const baseURL = CONFIG.getAPIURL();
+            if (CONFIG.environment === 'production') {
+                return \`\${baseURL}/bingx\`;
+            }
+            return \`\${baseURL}/bingx\${path}\`;
+        }
+    },
+
+    mexc: {
+        endpoint(path) {
+            const baseURL = CONFIG.getAPIURL();
+            if (CONFIG.environment === 'production') {
+                return \`\${baseURL}/mexc\`;
+            }
+            return \`\${baseURL}/mexc\${path}\`;
+        }
+    },
+
+    bitget: {
+        endpoint(path) {
+            const baseURL = CONFIG.getAPIURL();
+            if (CONFIG.environment === 'production') {
+                return \`\${baseURL}/bitget\`;
+            }
+            return \`\${baseURL}/bitget\${path}\`;
+        }
+    },
+
+    health: {
+        endpoint() {
+            const baseURL = CONFIG.getAPIURL();
+            if (CONFIG.environment === 'production') {
+                return \`\${baseURL}/health\`;
+            }
+            return \`\${baseURL}/health\`;
+        }
+    },
+
+    timeout: 30000,
+    retries: 3,
+    retryDelay: 2000,
+
+    async request(url, options = {}) {
+        const defaultOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            timeout: this.timeout,
+        };
+
+        const finalOptions = { ...defaultOptions, ...options };
+
+        if (finalOptions.body && typeof finalOptions.body === 'object') {
+            finalOptions.body = JSON.stringify(finalOptions.body);
+        }
+
+        try {
+            console.log(\`📡 Request: \${finalOptions.method} \${url}\`);
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+            const response = await fetch(url, {
+                ...finalOptions,
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+            }
+
+            const data = await response.json();
+            console.log(\`✅ Response:\`, data);
+
+            return data;
+
+        } catch (error) {
+            console.error(\`❌ Error en \${url}:\`, error.message);
+            throw error;
+        }
+    },
+
+    async checkHealth() {
+        try {
+            const url = this.health.endpoint();
+            const response = await fetch(url, {
+                method: 'GET',
+                cache: 'no-cache',
+                signal: AbortSignal.timeout(5000)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ API disponible:', data);
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.warn('⚠️ API no disponible:', error.message);
+            return false;
+        }
+    },
+
+    logConfig() {
+        console.log('');
+        console.log('╔════════════════════════════════════════════════════════════╗');
+        console.log('║       🚀 TRADER SURVIVOR - CONFIGURACIÓN                  ║');
+        console.log('╠════════════════════════════════════════════════════════════╣');
+        console.log(\`║  Entorno: \${this.environment.padEnd(47)} ║\`);
+        console.log(\`║  API URL: \${this.getAPIURL().padEnd(47)} ║\`);
+        console.log('╚════════════════════════════════════════════════════════════╝');
+        console.log('');
+    }
+};
+
+CONFIG.logConfig();
+window.CONFIG = CONFIG;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CONFIG;
+}`;
+
+            // Mostrar código
+            document.getElementById('configCode').textContent = codigo;
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('appLink').href = url;
+            document.getElementById('appLink').textContent = url;
+
+            // Scroll al output
+            document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copiarCodigo() {
+            const codigo = document.getElementById('configCode').textContent;
+
+            navigator.clipboard.writeText(codigo).then(() => {
+                alert('✅ ¡Código copiado al portapapeles!\n\nAhora:\n1. Abre config.js\n2. Borra todo su contenido\n3. Pega esto (Ctrl+V)\n4. Guarda (Ctrl+S)');
+            }).catch(err => {
+                alert('❌ Error al copiar. Selecciona el código manualmente y copia con Ctrl+C');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Binance API - Datos Reales</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .test-section h2 {
+            color: #10b981;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #10b981;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(16, 185, 129, 0.3);
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .results pre {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .info {
+            color: #3b82f6;
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 500px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .stat-card .label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .value {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .symbol-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .symbol-btn {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .symbol-btn:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Prueba de Binance API</h1>
+            <p>Verificación de datos reales para gráficos de trading</p>
+        </div>
+
+        <!-- Test 1: Conversión de Símbolos -->
+        <div class="test-section">
+            <h2>📝 Test 1: Conversión de Símbolos</h2>
+            <p style="color: #94a3b8; margin-bottom: 15px;">
+                Verifica que los símbolos se conviertan correctamente al formato Binance
+            </p>
+            <div class="controls">
+                <input type="text" id="symbol-input" placeholder="Ingresa un símbolo (ej: BTC, ETH, BTCUSD)" value="BTC">
+                <button onclick="testSymbolConversion()">🔄 Convertir</button>
+            </div>
+            <div id="symbol-result" class="results" style="display: none;"></div>
+        </div>
+
+        <!-- Test 2: Obtener Datos Reales -->
+        <div class="test-section">
+            <h2>📡 Test 2: Obtener Datos de Binance</h2>
+            <p style="color: #94a3b8; margin-bottom: 15px;">
+                Obtiene datos históricos reales desde la API de Binance
+            </p>
+            <div class="controls">
+                <select id="test-symbol">
+                    <option value="BTCUSDT">Bitcoin (BTCUSDT)</option>
+                    <option value="ETHUSDT">Ethereum (ETHUSDT)</option>
+                    <option value="BNBUSDT">Binance Coin (BNBUSDT)</option>
+                    <option value="SOLUSDT">Solana (SOLUSDT)</option>
+                    <option value="XRPUSDT">Ripple (XRPUSDT)</option>
+                </select>
+                <select id="test-interval">
+                    <option value="1m">1 minuto</option>
+                    <option value="5m" selected>5 minutos</option>
+                    <option value="15m">15 minutos</option>
+                    <option value="1h">1 hora</option>
+                    <option value="4h">4 horas</option>
+                </select>
+                <button onclick="testBinanceAPI()">📊 Obtener Datos</button>
+            </div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px;">Cargando datos de Binance...</p>
+            </div>
+            <div id="api-result" class="results" style="display: none;"></div>
+            <div class="stats" id="stats" style="display: none;"></div>
+            <canvas id="test-chart" class="chart-canvas" style="display: none;"></canvas>
+        </div>
+
+        <!-- Test 3: Símbolos Comunes -->
+        <div class="test-section">
+            <h2>🎯 Test 3: Símbolos Soportados</h2>
+            <p style="color: #94a3b8; margin-bottom: 15px;">
+                Haz clic en cualquier símbolo para probar su conversión
+            </p>
+            <div class="symbol-grid">
+                <button class="symbol-btn" onclick="quickTest('BTC')">BTC</button>
+                <button class="symbol-btn" onclick="quickTest('BTCUSD')">BTCUSD</button>
+                <button class="symbol-btn" onclick="quickTest('ETH')">ETH</button>
+                <button class="symbol-btn" onclick="quickTest('SOL')">SOL</button>
+                <button class="symbol-btn" onclick="quickTest('XRP')">XRP</button>
+                <button class="symbol-btn" onclick="quickTest('DOGE')">DOGE</button>
+                <button class="symbol-btn" onclick="quickTest('ADA')">ADA</button>
+                <button class="symbol-btn" onclick="quickTest('MATIC')">MATIC</button>
+                <button class="symbol-btn" onclick="quickTest('AVAX')">AVAX</button>
+                <button class="symbol-btn" onclick="quickTest('DOT')">DOT</button>
+                <button class="symbol-btn" onclick="quickTest('LINK')">LINK</button>
+                <button class="symbol-btn" onclick="quickTest('UNI')">UNI</button>
+            </div>
+            <div id="quick-result" class="results" style="display: none; margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Función para convertir símbolos (copiada del código principal)
+        function convertToTradingSymbol(instrument) {
+            if (!instrument) return null;
+
+            let symbol = instrument.toUpperCase().trim();
+            symbol = symbol.replace(/[\s\/\-_]/g, '');
+
+            const symbolMap = {
+                'BTCUSDT': 'BTCUSDT', 'BTCUSD': 'BTCUSDT', 'BTC': 'BTCUSDT', 'BITCOIN': 'BTCUSDT',
+                'ETHUSDT': 'ETHUSDT', 'ETHUSD': 'ETHUSDT', 'ETH': 'ETHUSDT', 'ETHEREUM': 'ETHUSDT',
+                'BNBUSDT': 'BNBUSDT', 'BNB': 'BNBUSDT',
+                'SOLUSDT': 'SOLUSDT', 'SOL': 'SOLUSDT',
+                'ADAUSDT': 'ADAUSDT', 'ADA': 'ADAUSDT',
+                'XRPUSDT': 'XRPUSDT', 'XRP': 'XRPUSDT',
+                'DOGEUSDT': 'DOGEUSDT', 'DOGE': 'DOGEUSDT',
+                'DOTUSDT': 'DOTUSDT', 'DOT': 'DOTUSDT',
+                'MATICUSDT': 'MATICUSDT', 'MATIC': 'MATICUSDT',
+                'AVAXUSDT': 'AVAXUSDT', 'AVAX': 'AVAXUSDT',
+                'LINKUSDT': 'LINKUSDT', 'LINK': 'LINKUSDT',
+                'UNIUSDT': 'UNIUSDT', 'UNI': 'UNIUSDT',
+                'ATOMUSDT': 'ATOMUSDT', 'ATOM': 'ATOMUSDT',
+                'LTCUSDT': 'LTCUSDT', 'LTC': 'LTCUSDT',
+            };
+
+            if (symbolMap[symbol]) return symbolMap[symbol];
+
+            if (symbol.endsWith('USD') && !symbol.endsWith('USDT')) {
+                return symbol + 'T';
+            }
+
+            if (!symbol.includes('USDT') && !symbol.includes('BUSD')) {
+                const knownCoins = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'XRP', 'DOGE', 'DOT', 'MATIC', 'AVAX', 'LINK', 'UNI', 'ATOM', 'LTC'];
+                if (knownCoins.includes(symbol)) {
+                    return symbol + 'USDT';
+                }
+            }
+
+            return symbol;
+        }
+
+        // Test 1: Conversión de símbolos
+        function testSymbolConversion() {
+            const input = document.getElementById('symbol-input').value;
+            const result = document.getElementById('symbol-result');
+
+            const converted = convertToTradingSymbol(input);
+
+            result.style.display = 'block';
+            result.innerHTML = `<pre>
+<span class="info">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="info">📊 RESULTADO DE CONVERSIÓN</span>
+<span class="info">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+<span style="color: #94a3b8;">Símbolo Ingresado:</span> <span style="color: #fff; font-weight: 600;">${input}</span>
+<span style="color: #94a3b8;">Símbolo Convertido:</span> <span class="success">${converted || 'null'}</span>
+<span style="color: #94a3b8;">Estado:</span> ${converted ? '<span class="success">✅ VÁLIDO</span>' : '<span class="error">❌ NO VÁLIDO</span>'}
+
+${converted ? `<span class="info">📡 Este símbolo puede usarse con Binance API</span>` : `<span class="error">⚠️ Este símbolo no se reconoce. Prueba con: BTC, ETH, SOL, etc.</span>`}
+</pre>`;
+        }
+
+        // Test 2: Obtener datos de Binance
+        async function testBinanceAPI() {
+            const symbol = document.getElementById('test-symbol').value;
+            const interval = document.getElementById('test-interval').value;
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('api-result');
+            const stats = document.getElementById('stats');
+            const chart = document.getElementById('test-chart');
+
+            loading.classList.add('active');
+            result.style.display = 'none';
+            stats.style.display = 'none';
+            chart.style.display = 'none';
+
+            try {
+                const endTime = Date.now();
+                const startTime = endTime - (4 * 60 * 60 * 1000); // 4 horas atrás
+
+                const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&startTime=${startTime}&endTime=${endTime}&limit=100`;
+
+                console.log('🔄 Solicitando datos:', url);
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                loading.classList.remove('active');
+                result.style.display = 'block';
+                stats.style.display = 'grid';
+                chart.style.display = 'block';
+
+                // Procesar datos
+                const candles = data.map(kline => ({
+                    time: new Date(kline[0]).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                    timestamp: kline[0],
+                    open: parseFloat(kline[1]),
+                    high: parseFloat(kline[2]),
+                    low: parseFloat(kline[3]),
+                    close: parseFloat(kline[4]),
+                    volume: parseFloat(kline[5])
+                }));
+
+                const lastCandle = candles[candles.length - 1];
+                const firstCandle = candles[0];
+                const priceChange = ((lastCandle.close - firstCandle.open) / firstCandle.open * 100).toFixed(2);
+                const highestPrice = Math.max(...candles.map(c => c.high));
+                const lowestPrice = Math.min(...candles.map(c => c.low));
+
+                // Mostrar resultados
+                result.innerHTML = `<pre>
+<span class="success">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="success">✅ DATOS OBTENIDOS EXITOSAMENTE</span>
+<span class="success">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+<span style="color: #94a3b8;">Símbolo:</span> <span style="color: #fff; font-weight: 600;">${symbol}</span>
+<span style="color: #94a3b8;">Intervalo:</span> <span style="color: #fff; font-weight: 600;">${interval}</span>
+<span style="color: #94a3b8;">Velas Obtenidas:</span> <span class="success">${candles.length}</span>
+
+<span style="color: #94a3b8;">Precio Actual:</span> <span style="color: #fff; font-weight: 600;">$${lastCandle.close.toFixed(2)}</span>
+<span style="color: #94a3b8;">Cambio:</span> <span class="${priceChange >= 0 ? 'success' : 'error'}">${priceChange >= 0 ? '+' : ''}${priceChange}%</span>
+
+<span style="color: #94a3b8;">Primera Vela:</span>
+  • Tiempo: ${firstCandle.time}
+  • Open: $${firstCandle.open.toFixed(2)}
+  • Close: $${firstCandle.close.toFixed(2)}
+
+<span style="color: #94a3b8;">Última Vela:</span>
+  • Tiempo: ${lastCandle.time}
+  • Open: $${lastCandle.open.toFixed(2)}
+  • Close: $${lastCandle.close.toFixed(2)}
+  • High: $${lastCandle.high.toFixed(2)}
+  • Low: $${lastCandle.low.toFixed(2)}
+  • Volume: ${lastCandle.volume.toFixed(2)}
+</pre>`;
+
+                // Mostrar estadísticas
+                stats.innerHTML = `
+                    <div class="stat-card">
+                        <div class="label">Precio Actual</div>
+                        <div class="value" style="color: ${priceChange >= 0 ? '#10b981' : '#ef4444'};">$${lastCandle.close.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Cambio 4h</div>
+                        <div class="value" style="color: ${priceChange >= 0 ? '#10b981' : '#ef4444'};">${priceChange >= 0 ? '+' : ''}${priceChange}%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Máximo</div>
+                        <div class="value">$${highestPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Mínimo</div>
+                        <div class="value">$${lowestPrice.toFixed(2)}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Velas</div>
+                        <div class="value">${candles.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="label">Intervalo</div>
+                        <div class="value">${interval}</div>
+                    </div>
+                `;
+
+                // Dibujar gráfico simple
+                drawSimpleChart(candles);
+
+            } catch (error) {
+                loading.classList.remove('active');
+                result.style.display = 'block';
+                result.innerHTML = `<pre>
+<span class="error">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="error">❌ ERROR AL OBTENER DATOS</span>
+<span class="error">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+<span style="color: #94a3b8;">Mensaje:</span> <span class="error">${error.message}</span>
+
+<span class="warning">⚠️ Posibles causas:</span>
+  • Sin conexión a internet
+  • Símbolo no válido
+  • API de Binance no disponible
+  • Límite de rate alcanzado
+
+<span class="info">💡 Solución:</span>
+  • Verifica tu conexión
+  • Prueba con otro símbolo
+  • Espera unos segundos y vuelve a intentar
+</pre>`;
+            }
+        }
+
+        // Dibujar gráfico simple de velas
+        function drawSimpleChart(candles) {
+            const canvas = document.getElementById('test-chart');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+
+            canvas.width = rect.width;
+            canvas.height = 500;
+
+            // Limpiar
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Dimensiones
+            const padding = { top: 30, right: 60, bottom: 40, left: 60 };
+            const chartWidth = canvas.width - padding.left - padding.right;
+            const chartHeight = canvas.height - padding.top - padding.bottom;
+
+            // Rango de precios
+            const allPrices = candles.flatMap(c => [c.open, c.high, c.low, c.close]);
+            const minPrice = Math.min(...allPrices) * 0.998;
+            const maxPrice = Math.max(...allPrices) * 1.002;
+            const priceRange = maxPrice - minPrice;
+
+            // Funciones de conversión
+            const priceToY = (price) => padding.top + (maxPrice - price) / priceRange * chartHeight;
+            const indexToX = (index) => padding.left + (index / (candles.length - 1)) * chartWidth;
+
+            // Grid
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = padding.top + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(canvas.width - padding.right, y);
+                ctx.stroke();
+            }
+
+            // Labels de precios
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let i = 0; i <= 5; i++) {
+                const price = maxPrice - (priceRange / 5) * i;
+                const y = padding.top + (chartHeight / 5) * i;
+                ctx.fillText('$' + price.toFixed(2), padding.left - 10, y);
+            }
+
+            // Velas
+            const candleWidth = Math.max(3, chartWidth / candles.length * 0.7);
+            candles.forEach((candle, index) => {
+                const x = indexToX(index);
+                const openY = priceToY(candle.open);
+                const closeY = priceToY(candle.close);
+                const highY = priceToY(candle.high);
+                const lowY = priceToY(candle.low);
+
+                const isGreen = candle.close > candle.open;
+                const color = isGreen ? '#10B981' : '#EF4444';
+
+                // Mecha
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+
+                // Cuerpo
+                const bodyHeight = Math.abs(closeY - openY);
+                const bodyTop = Math.min(openY, closeY);
+
+                if (isGreen) {
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(x - candleWidth/2, bodyTop, candleWidth, Math.max(1, bodyHeight));
+                } else {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x - candleWidth/2, bodyTop, candleWidth, Math.max(1, bodyHeight));
+                }
+            });
+
+            // Labels de tiempo
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            const step = Math.max(1, Math.floor(candles.length / 8));
+            for (let i = 0; i < candles.length; i += step) {
+                const x = indexToX(i);
+                ctx.fillText(candles[i].time, x, canvas.height - padding.bottom + 10);
+            }
+
+            // Título
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Gráfico de Velas - Datos Reales de Binance', canvas.width / 2, 10);
+        }
+
+        // Test rápido
+        function quickTest(symbol) {
+            document.getElementById('symbol-input').value = symbol;
+            testSymbolConversion();
+
+            const result = document.getElementById('quick-result');
+            const converted = convertToTradingSymbol(symbol);
+
+            result.style.display = 'block';
+            result.innerHTML = `<pre>
+<span class="info">Símbolo:</span> <span style="color: #fff; font-weight: 600;">${symbol}</span> → <span class="success">${converted}</span>
+${converted ? '<span class="success">✅ Válido para Binance API</span>' : '<span class="error">❌ No válido</span>'}
+</pre>`;
+        }
+
+        // Auto-test al cargar
+        window.addEventListener('load', () => {
+            console.log('🚀 Página de prueba cargada');
+            console.log('📊 Lista para probar la integración de Binance API');
+        });
+    </script>
+</body>
+</html>

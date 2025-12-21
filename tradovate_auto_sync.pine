@@ -1,0 +1,77 @@
+//@version=5
+indicator("Tradovate Auto-Sync to TraderSurvivor", overlay=true)
+
+// ============================================
+// CONFIGURACIÓN - EDITA ESTO
+// ============================================
+ACCOUNT_ID = input.string("25000", "Account ID de TraderSurvivor")
+WEBHOOK_URL = "http://localhost:8003/webhook/tradingview"
+
+// ============================================
+// DETECCIÓN DE POSICIÓN DEL BROKER
+// ============================================
+// Nota: Este script solo funciona en gráficos con trading en vivo conectado a Tradovate
+
+// Variables para tracking
+var float entryPrice = na
+var int positionSize = 0
+var string positionSide = ""
+var int tradeId = 0
+
+// Detectar cambios en posición (requiere Paper Trading o cuenta real conectada)
+// Usamos el precio y volumen de la barra actual como proxy
+currentPosition = ta.valuewhen(volume > 0, close, 0)
+
+// Plotear indicador visual
+plot(currentPosition, "Position Monitor", color=color.new(color.blue, 90), linewidth=2)
+
+// ============================================
+// ALERTA MANUAL PARA TRADES
+// ============================================
+// Dado que Pine Script no puede detectar trades reales del broker automáticamente,
+// debes crear alertas manualmente cuando abres/cierras posiciones
+
+// Botón visual para recordatorio
+var label alertLabel = na
+if barstate.islast
+    if na(alertLabel)
+        alertLabel := label.new(bar_index, high, 
+             "🔔 Crear alerta cuando operes\nClick derecho → Add Alert", 
+             style=label.style_label_down, 
+             color=color.new(color.orange, 80),
+             textcolor=color.white,
+             size=size.normal)
+    else
+        label.set_xy(alertLabel, bar_index, high)
+
+// ============================================
+// INSTRUCCIONES DE USO
+// ============================================
+// 1. Añade este indicador a tu gráfico de Tradovate
+// 2. Cambia ACCOUNT_ID arriba por tu ID (25000)
+// 3. Cuando ABRAS una posición:
+//    - Click derecho en el gráfico → "Add alert"
+//    - Condition: "Once Per Bar Close" o "Only Once"
+//    - Webhook URL: http://localhost:8003/webhook/tradingview
+//    - Message: {"accountId":"25000","symbol":"{{ticker}}","action":"buy","contracts":4,"price":{{close}},"timestamp":"{{timenow}}","orderId":"{{time}}","type":"entry"}
+//
+// 4. Cuando CIERRES una posición:
+//    - Igual pero cambia "action":"buy" por "action":"sell" y "type":"entry" por "type":"exit"
+//
+// LIMITACIÓN: Pine Script no puede leer tu posición real del broker automáticamente
+// Para 100% automático necesitas Tradovate API de pago
+
+// ============================================
+// TEMPLATE DE MENSAJE PARA ALERTAS
+// ============================================
+// APERTURA (LONG):
+// {"accountId":"25000","symbol":"{{ticker}}","action":"buy","contracts":4,"price":{{close}},"timestamp":"{{timenow}}","orderId":"{{time}}","type":"entry"}
+
+// CIERRE (LONG):
+// {"accountId":"25000","symbol":"{{ticker}}","action":"sell","contracts":4,"price":{{close}},"timestamp":"{{timenow}}","orderId":"{{time}}","type":"exit","entryPrice":PRECIO_ENTRADA_AQUI}
+
+// APERTURA (SHORT):
+// {"accountId":"25000","symbol":"{{ticker}}","action":"sell","contracts":4,"price":{{close}},"timestamp":"{{timenow}}","orderId":"{{time}}","type":"entry"}
+
+// CIERRE (SHORT):
+// {"accountId":"25000","symbol":"{{ticker}}","action":"buy","contracts":4,"price":{{close}},"timestamp":"{{timenow}}","orderId":"{{time}}","type":"exit","entryPrice":PRECIO_ENTRADA_AQUI}

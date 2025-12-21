@@ -1,0 +1,171 @@
+═══════════════════════════════════════════════════════════════
+    TRADER SURVIVOR - INSTRUCCIONES DE USO
+═══════════════════════════════════════════════════════════════
+
+🚀 INICIO RÁPIDO (RECOMENDADO)
+═══════════════════════════════════════════════════════════════
+
+1. Haz doble clic en:  start-app.bat
+
+2. Espera 5 segundos
+
+3. ¡Listo! La aplicación se abrirá automáticamente en tu navegador
+
+
+═══════════════════════════════════════════════════════════════
+📋 PROBLEMAS CON LAS APIS (BingX, MEXC, Bitget)
+═══════════════════════════════════════════════════════════════
+
+Si ves errores como "ERR_CONNECTION_REFUSED":
+
+SOLUCIÓN:
+---------
+El proxy NO está corriendo.
+
+1. Abre una terminal/CMD en esta carpeta
+2. Ejecuta:  npm start
+3. Deja esa terminal abierta
+4. Recarga la página web
+
+O simplemente ejecuta:  start-app.bat
+
+
+═══════════════════════════════════════════════════════════════
+🔧 VERIFICAR SI EL PROXY ESTÁ FUNCIONANDO
+═══════════════════════════════════════════════════════════════
+
+Opción 1: Abre tu navegador y ve a:
+http://127.0.0.1:8003/health
+
+Si ves un JSON con "status": "OK" → Todo bien ✅
+
+Opción 2: Abre en el navegador:
+check-proxy.html
+
+Te dirá si el proxy está activo o no.
+
+
+═══════════════════════════════════════════════════════════════
+🔑 CONFIGURAR CREDENCIALES DE APIs
+═══════════════════════════════════════════════════════════════
+
+BingX:
+------
+1. Ve a bingx.com → API Management
+2. Crea una API Key con permisos de LECTURA
+3. Guarda: API Key y Secret Key
+4. En la app: Plataformas → BingX → Conectar → Pega tus claves
+
+MEXC:
+-----
+1. Ve a mexc.com → API Management → Futures
+2. Crea una API Key con permisos de LECTURA
+3. Guarda: API Key y Secret Key
+4. En la app: Plataformas → MEXC → Conectar → Pega tus claves
+
+Bitget:
+-------
+1. Ve a bitget.com → API Management
+2. Crea una API Key con permisos de LECTURA
+3. Guarda: API Key, Secret Key y Passphrase
+4. En la app: Plataformas → Bitget → Conectar → Pega tus claves
+
+
+═══════════════════════════════════════════════════════════════
+🧪 PROBAR SI LAS APIs FUNCIONAN
+═══════════════════════════════════════════════════════════════
+
+Ejecuta en la terminal:
+
+node test-apis.js
+
+Esto probará todas las conexiones y te dirá qué funciona y qué no.
+
+
+═══════════════════════════════════════════════════════════════
+❌ ERRORES COMUNES
+═══════════════════════════════════════════════════════════════
+
+Error: "ERR_CONNECTION_REFUSED"
+--------------------------------
+Causa: El proxy no está corriendo
+Solución: Ejecuta "npm start" en una terminal
+
+
+Error: "Signature verification failed" (MEXC)
+---------------------------------------------
+Causa: Credenciales incorrectas o formato de firma malo
+Solución:
+- Verifica que uses credenciales de MEXC FUTURES (no Spot)
+- Regenera tus API Keys en MEXC
+- Vuelve a guardarlas en la aplicación
+
+
+Error: "Invalid API Key" (BingX)
+--------------------------------
+Causa: API Key incorrecta o expirada
+Solución:
+- Verifica la API Key en bingx.com
+- Regenera si es necesario
+- Asegúrate de copiarla completa (sin espacios)
+
+
+Error: "Invalid sign" (Bitget)
+------------------------------
+Causa: Passphrase incorrecta
+Solución:
+- Verifica que la Passphrase sea EXACTAMENTE la que configuraste
+- Regenera la API Key si es necesario
+
+
+Error: "CORS blocked"
+---------------------
+Causa: Intentando llamar directamente al exchange sin el proxy
+Solución:
+- SIEMPRE usa el proxy (puerto 8003)
+- NO llames directamente a las APIs de los exchanges
+
+
+═══════════════════════════════════════════════════════════════
+📁 ARCHIVOS IMPORTANTES
+═══════════════════════════════════════════════════════════════
+
+start-app.bat          → Inicia todo automáticamente (Windows)
+proxy-server.js        → Servidor proxy para las APIs
+test-apis.js           → Script para probar las conexiones
+check-proxy.html       → Página para verificar el proxy
+index.html             → Aplicación principal
+GUIA_APIS.md          → Guía completa y detallada
+
+
+═══════════════════════════════════════════════════════════════
+💡 CONSEJOS
+═══════════════════════════════════════════════════════════════
+
+✅ Usa siempre permisos mínimos (solo LECTURA) en las APIs
+✅ NO compartas tus API Keys con nadie
+✅ Agrega tu IP a la whitelist en los exchanges (más seguro)
+✅ Deja el proxy corriendo mientras uses la aplicación
+✅ Si algo falla, cierra todo y ejecuta start-app.bat de nuevo
+
+
+═══════════════════════════════════════════════════════════════
+🆘 AYUDA
+═══════════════════════════════════════════════════════════════
+
+Si nada funciona:
+
+1. Cierra TODO (navegador, terminales, etc.)
+2. Ejecuta:  start-app.bat
+3. Espera a que se abra el navegador
+4. Prueba de nuevo
+
+Si el problema persiste:
+- Lee GUIA_APIS.md para más detalles
+- Ejecuta "node test-apis.js" para diagnóstico
+- Revisa la consola del navegador (F12)
+
+
+═══════════════════════════════════════════════════════════════
+    ¡LISTO! Ahora puedes usar Trader Survivor 🎉
+═══════════════════════════════════════════════════════════════

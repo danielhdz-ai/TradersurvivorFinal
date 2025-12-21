@@ -1,0 +1,131 @@
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN RÁPIDA - MEXC Y BITGET
+═══════════════════════════════════════════════════════════════
+
+PROBLEMA ACTUAL:
+- MEXC: Error de firma "签名验证失败" (Signature verification failed)
+- Bitget: No conecta o tiene errores similares
+- Las cuentas se confunden con las de la plataforma
+
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN 1: USAR SOLO BINGX (YA FUNCIONA)
+═══════════════════════════════════════════════════════════════
+
+BingX ya está funcionando correctamente. Si solo necesitas una API
+para empezar, usa BingX que ya está conectado.
+
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN 2: REGENERAR CREDENCIALES DE MEXC
+═══════════════════════════════════════════════════════════════
+
+El problema de MEXC suele ser:
+
+1. Las credenciales no son de FUTURES
+   - Ve a MEXC.com → API Management
+   - Asegúrate de crear API Key en la sección "Futures"
+   - NO uses la de Spot Trading
+
+2. Los permisos están mal
+   - La API Key debe tener: "Read" habilitado
+   - También debe tener: "Futures Trading" habilitado
+
+3. IP Whitelist
+   - En MEXC → API Settings
+   - Deja la IP sin restricción (0.0.0.0/0)
+   - O agrega tu IP actual
+
+4. Secret Key incorrecto
+   - MEXC solo muestra el Secret Key UNA VEZ
+   - Si no lo guardaste, debes regenerar la API Key
+
+PASOS PARA REGENERAR:
+
+a) Ve a: https://www.mexc.com/user/openapi
+b) Click en "Delete" en tu API Key actual
+c) Click en "Create API"
+d) Selecciona "Futures API"
+e) Permisos: "Read" + "Futures Trading"
+f) IP: "No IP Restriction" (o tu IP)
+g) GUARDA el Secret Key en un lugar seguro
+h) Copia API Key y Secret Key
+i) Pégalos en la aplicación
+
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN 3: VERIFICAR FORMATO DE CREDENCIALES
+═══════════════════════════════════════════════════════════════
+
+MEXC Futures usa un formato específico:
+
+API Key: Empieza con "mx-"
+Ejemplo: mx-Vu7k6EaVMrJzL0r...
+
+Secret Key: 32 caracteres hexadecimales
+Ejemplo: 9a29ad75229e4d2e987e4b7b22030823
+
+Si tu Secret Key no tiene 32 caracteres exactos, está mal.
+
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN 4: PROBLEMA DE CUENTAS CONFUNDIDAS
+═══════════════════════════════════════════════════════════════
+
+PROBLEMA:
+- BingX usa su propia "Cuenta Principal de Futuros"
+- MEXC y Bitget usan las cuentas que creaste en la app
+- Esto causa confusión
+
+SOLUCIÓN TEMPORAL:
+1. Crea una cuenta llamada "MEXC (USDT)" en la app
+2. Vincúlala cuando conectes la API de MEXC
+3. Haz lo mismo con Bitget: "Bitget (USDT)"
+
+SOLUCIÓN PERMANENTE (requiere código):
+- Necesito modificar el código para que MEXC y Bitget
+  creen automáticamente su cuenta como BingX lo hace
+- Esto requiere editar el archivo index.html
+
+═══════════════════════════════════════════════════════════════
+    SOLUCIÓN 5: BITGET
+═══════════════════════════════════════════════════════════════
+
+Bitget requiere 3 credenciales:
+1. API Key
+2. Secret Key
+3. Passphrase (la que pusiste al crear la API)
+
+IMPORTANTE: El Passphrase debe ser EXACTAMENTE el que configuraste.
+
+Si no recuerdas el Passphrase, debes:
+1. Eliminar la API Key actual en Bitget
+2. Crear una nueva
+3. Guardar el Passphrase en un lugar seguro
+
+═══════════════════════════════════════════════════════════════
+    ¿QUÉ HACER AHORA?
+═══════════════════════════════════════════════════════════════
+
+OPCIÓN A - Regenerar credenciales de MEXC:
+1. Sigue los pasos de "SOLUCIÓN 2"
+2. Usa las nuevas credenciales en la app
+3. Prueba conectar de nuevo
+
+OPCIÓN B - Usar solo BingX por ahora:
+1. BingX ya funciona
+2. Puedes sincronizar trades desde ahí
+3. Agregamos MEXC/Bitget después
+
+OPCIÓN C - Te ayudo a arreglar el código:
+1. Modifico el código de firma de MEXC
+2. Creo cuentas automáticas para cada exchange
+3. Todo funciona como BingX
+
+═══════════════════════════════════════════════════════════════
+
+¿Cuál opción prefieres?
+
+A) Regenerar credenciales MEXC
+B) Usar solo BingX
+C) Modificar el código
+
+Dime y te ayudo con eso específicamente.
+
+═══════════════════════════════════════════════════════════════

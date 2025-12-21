@@ -1,0 +1,131 @@
+# 🚀 INICIO RÁPIDO: TradingView Webhooks
+
+## ✅ TODO ESTÁ LISTO - SOLO SIGUE ESTOS PASOS
+
+### 1️⃣ Iniciar el Servidor (1 minuto)
+
+Abre una terminal y ejecuta:
+
+```bash
+cd "C:\Users\Daniel HDZ\Desktop\tradersurvivir su"
+node proxy-server.js
+```
+
+✅ Verás: `📡 TradingView Webhook disponible en: http://localhost:8003/webhook/tradingview`
+
+**NO CIERRES ESTA TERMINAL** - Debe quedar corriendo
+
+---
+
+### 2️⃣ Abrir la App (10 segundos)
+
+Abre tu navegador y ve a:
+```
+http://localhost:8003
+```
+
+---
+
+### 3️⃣ Configurar Webhook (2 minutos)
+
+1. **Click en "Plataformas"** (menú lateral izquierdo)
+2. **Click en la tarjeta "TradingView"** (tiene el logo azul)
+3. **Selecciona tu cuenta** (ej: "Funded 50k")
+4. **Copia el Account ID** que aparece (botón de copiar a la derecha)
+5. **Click en "Guardar Configuración"**
+6. **Click en "Probar Webhook"** - Debe decir "✅ Webhook test exitoso!"
+
+---
+
+### 4️⃣ Configurar TradingView (5 minutos)
+
+#### Opción A: Usar el script de ejemplo
+
+1. **Abre TradingView** (web o desktop)
+2. **Abre el archivo** `ejemplo_estrategia_tradingview.pine`
+3. **Busca la línea** `ACCOUNT_ID = "TU_ACCOUNT_ID"`
+4. **Reemplaza** `TU_ACCOUNT_ID` con el ID que copiaste (ej: `"123"`)
+5. **Copia todo el código** y pégalo en Pine Editor de TradingView
+6. **Click en "Add to Chart"**
+
+#### Opción B: Usar tu propia estrategia
+
+En tus órdenes, agrega `alert_message`:
+
+```pinescript
+strategy.entry("Long", strategy.long, 
+    alert_message='{"accountId": "TU_ID_AQUI", "symbol": "{{ticker}}", "action": "buy", "contracts": 1, "price": {{close}}, "timestamp": "{{timenow}}", "orderId": "{{strategy.order.id}}"}')
+```
+
+---
+
+### 5️⃣ Crear la Alerta (2 minutos)
+
+1. **Click derecho en tu estrategia** (en el gráfico)
+2. **Selecciona "Add alert on strategy..."**
+3. **En "Webhook URL"** pega:
+   ```
+   http://localhost:8003/webhook/tradingview
+   ```
+4. **En "Options"** marca "Once Per Bar Close"
+5. **Click en "Create"**
+
+---
+
+### 6️⃣ ¡LISTO! 🎉
+
+Ahora cada vez que tu estrategia ejecute un trade:
+- ✅ Se enviará automáticamente a tu app
+- ✅ Aparecerá en la sección "Trades"
+- ✅ Se calculará el P&L
+- ✅ Verás el log en TradingView (plataforma)
+
+---
+
+## 🔍 VERIFICAR QUE FUNCIONA
+
+### En la terminal del servidor verás:
+```
+📩 TradingView Webhook Received: {...}
+✅ Trade parsed: {...}
+```
+
+### En la app verás:
+- Panel TradingView: "✅ Webhook funcionando"
+- Sección Trades: Nuevo trade importado
+- Log de webhooks: Última operación recibida
+
+---
+
+## ⚠️ IMPORTANTE
+
+- ✅ Servidor debe estar **siempre corriendo** mientras operas
+- ✅ Account ID debe ser **exactamente el mismo** en TradingView y la app
+- ✅ URL del webhook: `http://localhost:8003/webhook/tradingview`
+- ✅ Solo funciona en **localhost** (misma computadora)
+
+---
+
+## 📚 SI NECESITAS MÁS AYUDA
+
+Lee los archivos:
+- `TRADINGVIEW_SIN_NGROK.md` - Guía completa
+- `RESUMEN_TRADINGVIEW.md` - Resumen técnico
+- `ejemplo_estrategia_tradingview.pine` - Código de ejemplo
+
+---
+
+## 🆘 PROBLEMAS COMUNES
+
+### "No se puede conectar al servidor"
+→ Verifica que `node proxy-server.js` esté corriendo
+
+### "El webhook no llega"
+→ Verifica la URL en la alerta de TradingView
+
+### "Account ID incorrecto"
+→ Copia el ID desde la app TradingView (sección Plataformas)
+
+---
+
+**¡Disfruta tu auto-import de trades! 🚀**

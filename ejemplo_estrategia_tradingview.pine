@@ -1,0 +1,66 @@
+//@version=5
+strategy("Auto-Import a TraderSurvivir", overlay=true, margin_long=100, margin_short=100)
+
+// ============================================
+// CONFIGURACIÓN - REEMPLAZA TU ACCOUNT ID AQUÍ
+// ============================================
+ACCOUNT_ID = "TU_ACCOUNT_ID"  // ⚠️ IMPORTANTE: Reemplaza con tu Account ID de la app
+
+// ============================================
+// PARÁMETROS DE LA ESTRATEGIA
+// ============================================
+fastLength = input.int(9, "Fast MA Length", minval=1)
+slowLength = input.int(21, "Slow MA Length", minval=1)
+riskPercent = input.float(1.0, "Risk per Trade (%)", minval=0.1, maxval=5.0)
+
+// ============================================
+// INDICADORES
+// ============================================
+fastMA = ta.sma(close, fastLength)
+slowMA = ta.sma(close, slowLength)
+
+// Plot MAs
+plot(fastMA, "Fast MA", color=color.blue, linewidth=2)
+plot(slowMA, "Slow MA", color=color.red, linewidth=2)
+
+// ============================================
+// LÓGICA DE TRADING
+// ============================================
+longCondition = ta.crossover(fastMA, slowMA)
+shortCondition = ta.crossunder(fastMA, slowMA)
+
+// ============================================
+// MENSAJES DE WEBHOOK PARA AUTO-IMPORT
+// ============================================
+
+// Mensaje para LONG (Compra)
+longMessage = '{"accountId": "' + ACCOUNT_ID + '", "symbol": "' + syminfo.ticker + '", "action": "buy", "contracts": 1, "price": ' + str.tostring(close) + ', "orderType": "market", "timestamp": "' + str.tostring(timenow) + '", "orderId": "LONG_' + str.tostring(timenow) + '", "comment": "MA Cross Long"}'
+
+// Mensaje para SHORT (Venta)
+shortMessage = '{"accountId": "' + ACCOUNT_ID + '", "symbol": "' + syminfo.ticker + '", "action": "sell", "contracts": 1, "price": ' + str.tostring(close) + ', "orderType": "market", "timestamp": "' + str.tostring(timenow) + '", "orderId": "SHORT_' + str.tostring(timenow) + '", "comment": "MA Cross Short"}'
+
+// ============================================
+// EJECUTAR ÓRDENES
+// ============================================
+
+if (longCondition)
+    strategy.entry("Long", strategy.long, comment="BUY", alert_message=longMessage)
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short, comment="SELL", alert_message=shortMessage)
+
+// ============================================
+// SEÑALES VISUALES
+// ============================================
+plotshape(longCondition, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+plotshape(shortCondition, title="Sell Signal", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+
+// ============================================
+// CÓMO USAR ESTE SCRIPT
+// ============================================
+// 1. Reemplaza "TU_ACCOUNT_ID" arriba con tu Account ID de la app
+// 2. Aplica el script a tu gráfico
+// 3. Click derecho → "Add alert on strategy..."
+// 4. En "Webhook URL" pega: http://localhost:8003/webhook/tradingview
+// 5. ¡Listo! Cada trade se enviará automáticamente a tu app
+// ============================================
