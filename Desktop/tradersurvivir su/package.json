@@ -2,5 +2,9 @@
   "name": "tradersurvivor-final",
   "version": "1.0.0",
   "description": "Trader Survivor - Trading Journal",
-  "private": true
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  }
 }
