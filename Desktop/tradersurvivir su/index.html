@@ -32614,6 +32614,9 @@ async function fixPrimeXBTOperationIDs() {
     showSyncNotification(`✅ Se corrigieron ${correctedCount} IDs de operaciones de PrimeXBT`, 'success');
 }
 
+// Exportar función al ámbito global
+window.fixPrimeXBTOperationIDs = fixPrimeXBTOperationIDs;
+
 // Función global para ejecutar corrección manualmente desde consola
 window.fixPrimeXBTIDs = async function() {
     if (typeof fixPrimeXBTOperationIDs === 'function') {
