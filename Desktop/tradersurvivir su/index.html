@@ -27697,10 +27697,14 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                 }
             }
 
-            // Verificar duplicados
+            // Verificar duplicados (por ID y por datos)
             const newOperations = [];
             for (const op of combinedOperations) {
-                const isDuplicate = DB.operations.some(existingOp => 
+                // Verificar duplicado por ID
+                const isDuplicateById = DB.operations.some(existingOp => existingOp.id === op.id);
+                
+                // Verificar duplicado por datos
+                const isDuplicateByData = DB.operations.some(existingOp => 
                     existingOp.date === op.date &&
                     existingOp.instrument === op.instrument &&
                     existingOp.entryTime === op.entryTime &&
@@ -27708,18 +27712,21 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                     Math.abs(existingOp.volume - op.volume) < 0.01
                 );
                 
-                if (!isDuplicate) {
+                if (!isDuplicateById && !isDuplicateByData) {
                     newOperations.push(op);
+                } else {
+                    console.log(`⚠️ Operación duplicada omitida: ${op.id} - ${op.instrument} ${op.date}`);
                 }
             }
             const importedCount = newOperations.length;
 
             if (newOperations.length > 0) {
                 try {
+                    // PRIMERO: Guardar en IndexedDB
                     await dexieDB.operations.bulkAdd(newOperations);
-                    DB.operations.push(...newOperations);
-
-                    // Sincronización con Supabase
+                    console.log(`✅ ${newOperations.length} operaciones guardadas en IndexedDB`);
+                    
+                    // SEGUNDO: Sincronizar con Supabase
                     if (currentUser) {
                         let successCount = 0;
                         let errorCount = 0;
@@ -27734,7 +27741,18 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                                 errorCount++;
                             }
                         }
+                        console.log(`✅ ${successCount} operaciones sincronizadas con Supabase`);
                     }
+                    
+                    // TERCERO: Añadir a DB.operations EN MEMORIA (solo después de guardar exitosamente)
+                    // Verificar nuevamente para evitar duplicados en caso de recargas
+                    for (const op of newOperations) {
+                        const exists = DB.operations.some(existingOp => existingOp.id === op.id);
+                        if (!exists) {
+                            DB.operations.push(op);
+                        }
+                    }
+                    console.log(`✅ ${newOperations.length} operaciones procesadas en DB.operations`);
 
                     updateAccountBalances();
                     refreshAllViews();
