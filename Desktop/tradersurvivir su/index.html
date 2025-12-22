@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trader Survivor - Trading Journal Profesional V2</title>
-    <!-- VERSION: 2024-12-22-FIX-ONCLICK-v4 -->
+    <!-- VERSION: 2024-12-22-ONCLICK-NO-LISTENERS-v5 -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
@@ -27855,25 +27855,7 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             }
         };
 
-        // Inicializar event listeners del modal de PrimeXBT Interface
-        function initPrimeXBTInterfaceModal() {
-            console.log('🔧 Inicializando modal PrimeXBT Interface...');
-            
-            // Cerrar modal al hacer clic fuera de él
-            const primexbtInterfaceModal = document.getElementById('primexbt-interface-import-modal');
-            if (primexbtInterfaceModal && !primexbtInterfaceModal.dataset.listenerAdded) {
-                primexbtInterfaceModal.dataset.listenerAdded = 'true';
-                primexbtInterfaceModal.addEventListener('click', (e) => {
-                    if (e.target === primexbtInterfaceModal) {
-                        primexbtInterfaceModal.classList.add('hidden');
-                        primexbtInterfaceModal.classList.remove('flex');
-                    }
-                });
-                console.log('✅ Event listener cerrar modal agregado');
-            }
-            
-            console.log('✅ Modal PrimeXBT Interface inicializado completamente');
-        }
+        // NOTA: initPrimeXBTInterfaceModal ELIMINADA - ahora usa onclick="handlePrimeXBTInterfaceImport()" directo en HTML
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Inicializar sidebar
@@ -27899,7 +27881,7 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             initAccounts();
             await initConfig();
             initPlatforms(); // Ahora está definida en el mismo bloque
-            initPrimeXBTInterfaceModal(); // Inicializar modal de PrimeXBT Interface
+            // initPrimeXBTInterfaceModal(); // ELIMINADO - ahora usa onclick directo
             initDateRangeModal();
             initImageModal(); // Mantén esto para el pop-up de imágenes desde la página de detalles
             initMainHeader(); // Inicializar header principal
