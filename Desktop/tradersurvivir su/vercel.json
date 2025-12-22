@@ -1,7 +1,7 @@
 {
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": ".",
-  "comment": "Force redeploy - Fix duplicate operations v2",
+  "comment": "Force redeploy - Fix duplicate operations v3 - BUTTON CLONING",
   "headers": [
     {
       "source": "/api/(.*)",
