@@ -10857,7 +10857,7 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                     <button id="primexbt-interface-cancel-btn" class="px-4 py-2 bg-surface-light border border-border rounded hover:bg-surface transition-colors">
                         Cancelar
                     </button>
-                    <button id="primexbt-interface-import-btn" class="px-4 py-2 bg-primary text-background rounded hover:bg-secondary transition-colors font-semibold">
+                    <button id="primexbt-interface-import-btn" onclick="handlePrimeXBTInterfaceImport()" class="px-4 py-2 bg-primary text-background rounded hover:bg-secondary transition-colors font-semibold">
                         <i class="fas fa-upload mr-2"></i>Importar Operaciones
                     </button>
                 </div>
@@ -27793,80 +27793,72 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
         
         console.log('✅ Función processPrimeXBTInterfaceData cargada y disponible globalmente');
 
+        // Handler para el botón de importar (llamado directamente desde onclick en HTML)
+        window.handlePrimeXBTInterfaceImport = async function() {
+            console.log('🎯 handlePrimeXBTInterfaceImport ejecutado');
+            
+            const accountSelect = document.getElementById('primexbt-interface-account');
+            const dataTextarea = document.getElementById('primexbt-interface-data');
+            const statusDiv = document.getElementById('primexbt-interface-status');
+            const primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
+            
+            const accountId = accountSelect.value;
+            const rawData = dataTextarea.value.trim();
+            
+            // Validar datos
+            if (!accountId) {
+                statusDiv.textContent = '❌ Debes seleccionar una cuenta destino';
+                statusDiv.className = 'text-sm text-center text-red';
+                return;
+            }
+            
+            if (!rawData) {
+                statusDiv.textContent = '❌ Debes pegar los datos de las operaciones';
+                statusDiv.className = 'text-sm text-center text-red';
+                return;
+            }
+            
+            // Prevenir múltiples clics mientras procesa
+            if (primexbtInterfaceImportBtn.disabled) {
+                console.log('⚠️ Ya hay una importación en proceso');
+                return;
+            }
+            
+            // Mostrar indicador de procesamiento
+            statusDiv.textContent = '⏳ Procesando operaciones...';
+            statusDiv.className = 'text-sm text-center text-yellow';
+            primexbtInterfaceImportBtn.disabled = true;
+            primexbtInterfaceImportBtn.textContent = 'Procesando...';
+            
+            try {
+                // Verificar que la función esté disponible
+                if (typeof window.processPrimeXBTInterfaceData !== 'function') {
+                    console.error('❌ La función processPrimeXBTInterfaceData NO está definida');
+                    throw new Error('Error de carga. Por favor recarga la página (Ctrl+Shift+R).');
+                }
+                
+                console.log('✅ Función encontrada, procesando datos...');
+                await window.processPrimeXBTInterfaceData(rawData, accountId);
+                
+                // Restablecer botón
+                primexbtInterfaceImportBtn.disabled = false;
+                primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
+                
+            } catch (error) {
+                console.error('Error al importar:', error);
+                statusDiv.textContent = `❌ Error: ${error.message}`;
+                statusDiv.className = 'text-sm text-center text-red';
+                
+                // Restablecer botón
+                primexbtInterfaceImportBtn.disabled = false;
+                primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
+            }
+        };
+
         // Inicializar event listeners del modal de PrimeXBT Interface
         function initPrimeXBTInterfaceModal() {
             console.log('🔧 Inicializando modal PrimeXBT Interface...');
             
-            // Event listener para el botón "Importar Operaciones"
-            let primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
-            if (primexbtInterfaceImportBtn) {
-                // ELIMINAR TODOS los event listeners clonando el botón
-                const newBtn = primexbtInterfaceImportBtn.cloneNode(true);
-                primexbtInterfaceImportBtn.parentNode.replaceChild(newBtn, primexbtInterfaceImportBtn);
-                primexbtInterfaceImportBtn = newBtn;
-                
-                primexbtInterfaceImportBtn.addEventListener('click', async () => {
-                    const accountSelect = document.getElementById('primexbt-interface-account');
-                    const dataTextarea = document.getElementById('primexbt-interface-data');
-                    const statusDiv = document.getElementById('primexbt-interface-status');
-                    
-                    const accountId = accountSelect.value;
-                    const rawData = dataTextarea.value.trim();
-                    
-                    // Validar datos
-                    if (!accountId) {
-                        statusDiv.textContent = '❌ Debes seleccionar una cuenta destino';
-                        statusDiv.className = 'text-sm text-center text-red';
-                        return;
-                    }
-                    
-                    if (!rawData) {
-                        statusDiv.textContent = '❌ Debes pegar los datos de las operaciones';
-                        statusDiv.className = 'text-sm text-center text-red';
-                        return;
-                    }
-                    
-                    // Prevenir múltiples clics mientras procesa
-                    if (primexbtInterfaceImportBtn.disabled) {
-                        console.log('⚠️ Ya hay una importación en proceso');
-                        return;
-                    }
-                    
-                    // Mostrar indicador de procesamiento
-                    statusDiv.textContent = '⏳ Procesando operaciones...';
-                    statusDiv.className = 'text-sm text-center text-yellow';
-                    primexbtInterfaceImportBtn.disabled = true;
-                    primexbtInterfaceImportBtn.textContent = 'Procesando...';
-                    
-                    try {
-                        // Verificar que la función esté disponible
-                        if (typeof window.processPrimeXBTInterfaceData !== 'function') {
-                            console.error('❌ La función processPrimeXBTInterfaceData NO está definida');
-                            console.log('🔍 Funciones disponibles:', Object.keys(window).filter(k => k.includes('PrimeXBT')));
-                            throw new Error('Error de carga. Por favor recarga la página (Ctrl+Shift+R) e inténtalo de nuevo.');
-                        }
-                        
-                        console.log('✅ Función encontrada, procesando datos...');
-                        // Procesar los datos
-                        await window.processPrimeXBTInterfaceData(rawData, accountId);
-                        
-                        // Restablecer botón
-                        primexbtInterfaceImportBtn.disabled = false;
-                        primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
-                        
-                    } catch (error) {
-                        console.error('Error al importar:', error);
-                        statusDiv.textContent = `❌ Error: ${error.message}`;
-                        statusDiv.className = 'text-sm text-center text-red';
-                        
-                        // Restablecer botón
-                        primexbtInterfaceImportBtn.disabled = false;
-                        primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
-                    }
-                });
-                console.log('✅ Event listener botón importar agregado');
-            }
-
             // Cerrar modal al hacer clic fuera de él
             const primexbtInterfaceModal = document.getElementById('primexbt-interface-import-modal');
             if (primexbtInterfaceModal && !primexbtInterfaceModal.dataset.listenerAdded) {
