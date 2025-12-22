@@ -27327,18 +27327,30 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
          * @param {string} rawData - Datos copiados desde la interfaz del broker
          * @param {string} accountId - ID de la cuenta donde se importarán las operaciones
          */
+        let isPrimeXBTProcessing = false; // Flag para evitar ejecuciones simultáneas
+        
         window.processPrimeXBTInterfaceData = async function(rawData, accountId) {
             console.log('📄 Procesando datos desde interfaz de PrimeXBT...');
             
-            if (!rawData || !rawData.trim()) {
-                showSyncNotification('❌ No se proporcionaron datos para importar', 'error');
+            // Prevenir ejecuciones simultáneas
+            if (isPrimeXBTProcessing) {
+                console.warn('⚠️ Ya hay un proceso de importación en curso. Por favor espera.');
+                showSyncNotification('⚠️ Ya hay una importación en proceso', 'warning');
                 return;
             }
+            
+            isPrimeXBTProcessing = true;
+            
+            try {
+                if (!rawData || !rawData.trim()) {
+                    showSyncNotification('❌ No se proporcionaron datos para importar', 'error');
+                    return;
+                }
 
-            if (!accountId) {
-                showSyncNotification('❌ Debes seleccionar una cuenta destino', 'error');
-                return;
-            }
+                if (!accountId) {
+                    showSyncNotification('❌ Debes seleccionar una cuenta destino', 'error');
+                    return;
+                }
 
             // Buscar la cuenta seleccionada
             const account = DB.accounts.find(acc => acc.id === accountId);
@@ -27770,6 +27782,12 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             } else {
                 showSyncNotification('ℹ️ No se encontraron operaciones nuevas para importar', 'info');
             }
+            
+            } finally {
+                // Siempre resetear el flag al terminar
+                isPrimeXBTProcessing = false;
+                console.log('🔓 Flag de procesamiento liberado');
+            }
         };
         
         console.log('✅ Función processPrimeXBTInterfaceData cargada y disponible globalmente');
@@ -27780,7 +27798,8 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             
             // Event listener para el botón "Importar Operaciones"
             const primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
-            if (primexbtInterfaceImportBtn) {
+            if (primexbtInterfaceImportBtn && !primexbtInterfaceImportBtn.dataset.listenerAdded) {
+                primexbtInterfaceImportBtn.dataset.listenerAdded = 'true';
                 primexbtInterfaceImportBtn.addEventListener('click', async () => {
                     const accountSelect = document.getElementById('primexbt-interface-account');
                     const dataTextarea = document.getElementById('primexbt-interface-data');
@@ -27799,6 +27818,12 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                     if (!rawData) {
                         statusDiv.textContent = '❌ Debes pegar los datos de las operaciones';
                         statusDiv.className = 'text-sm text-center text-red';
+                        return;
+                    }
+                    
+                    // Prevenir múltiples clics mientras procesa
+                    if (primexbtInterfaceImportBtn.disabled) {
+                        console.log('⚠️ Ya hay una importación en proceso');
                         return;
                     }
                     
@@ -27839,7 +27864,8 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
 
             // Cerrar modal al hacer clic fuera de él
             const primexbtInterfaceModal = document.getElementById('primexbt-interface-import-modal');
-            if (primexbtInterfaceModal) {
+            if (primexbtInterfaceModal && !primexbtInterfaceModal.dataset.listenerAdded) {
+                primexbtInterfaceModal.dataset.listenerAdded = 'true';
                 primexbtInterfaceModal.addEventListener('click', (e) => {
                     if (e.target === primexbtInterfaceModal) {
                         primexbtInterfaceModal.classList.add('hidden');
@@ -37783,72 +37809,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Event listener para botón Importar
-    const primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
-    if (primexbtInterfaceImportBtn) {
-        primexbtInterfaceImportBtn.addEventListener('click', async () => {
-            const accountSelect = document.getElementById('primexbt-interface-account');
-            const dataTextarea = document.getElementById('primexbt-interface-data');
-            const statusDiv = document.getElementById('primexbt-interface-status');
-            
-            const accountId = accountSelect.value;
-            const rawData = dataTextarea.value.trim();
-            
-            // Validar datos
-            if (!accountId) {
-                statusDiv.textContent = '❌ Debes seleccionar una cuenta destino';
-                statusDiv.className = 'text-sm text-center text-red';
-                return;
-            }
-            
-            if (!rawData) {
-                statusDiv.textContent = '❌ Debes pegar los datos de las operaciones';
-                statusDiv.className = 'text-sm text-center text-red';
-                return;
-            }
-            
-            // Mostrar indicador de procesamiento
-            statusDiv.textContent = '⏳ Procesando operaciones...';
-            statusDiv.className = 'text-sm text-center text-yellow';
-            primexbtInterfaceImportBtn.disabled = true;
-            primexbtInterfaceImportBtn.textContent = 'Procesando...';
-            
-            try {
-                // Verificar que la función esté disponible
-                if (typeof window.processPrimeXBTInterfaceData !== 'function') {
-                    console.error('❌ La función processPrimeXBTInterfaceData NO está definida');
-                    throw new Error('Error de carga. Por favor recarga la página (Ctrl+Shift+R) e inténtalo de nuevo.');
-                }
-                
-                // Procesar los datos
-                await window.processPrimeXBTInterfaceData(rawData, accountId);
-                
-                // Restablecer botón
-                primexbtInterfaceImportBtn.disabled = false;
-                primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
-                
-            } catch (error) {
-                console.error('Error al importar:', error);
-                statusDiv.textContent = `❌ Error: ${error.message}`;
-                statusDiv.className = 'text-sm text-center text-red';
-                
-                // Restablecer botón
-                primexbtInterfaceImportBtn.disabled = false;
-                primexbtInterfaceImportBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>Importar Operaciones';
-            }
-        });
-    }
-
-    // Cerrar modal al hacer clic fuera de él
-    const primexbtInterfaceModal = document.getElementById('primexbt-interface-import-modal');
-    if (primexbtInterfaceModal) {
-        primexbtInterfaceModal.addEventListener('click', (e) => {
-            if (e.target === primexbtInterfaceModal) {
-                primexbtInterfaceModal.classList.add('hidden');
-                primexbtInterfaceModal.classList.remove('flex');
-            }
-        });
-    }
+    // Event listeners para botón Importar y cerrar modal ya están definidos en initPrimeXBTInterfaceModal()
 
     // ============================================
     // EVENT LISTENERS PARA BITGET
