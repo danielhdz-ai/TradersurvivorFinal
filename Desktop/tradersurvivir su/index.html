@@ -27797,9 +27797,13 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             console.log('🔧 Inicializando modal PrimeXBT Interface...');
             
             // Event listener para el botón "Importar Operaciones"
-            const primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
-            if (primexbtInterfaceImportBtn && !primexbtInterfaceImportBtn.dataset.listenerAdded) {
-                primexbtInterfaceImportBtn.dataset.listenerAdded = 'true';
+            let primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
+            if (primexbtInterfaceImportBtn) {
+                // ELIMINAR TODOS los event listeners clonando el botón
+                const newBtn = primexbtInterfaceImportBtn.cloneNode(true);
+                primexbtInterfaceImportBtn.parentNode.replaceChild(newBtn, primexbtInterfaceImportBtn);
+                primexbtInterfaceImportBtn = newBtn;
+                
                 primexbtInterfaceImportBtn.addEventListener('click', async () => {
                     const accountSelect = document.getElementById('primexbt-interface-account');
                     const dataTextarea = document.getElementById('primexbt-interface-data');
