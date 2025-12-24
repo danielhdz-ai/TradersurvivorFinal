@@ -1,7 +1,7 @@
 {
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": ".",
-  "comment": "Force cache clear - v4.0 - December 24, 2025",
+  "comment": "Fix: PrimeXBT duplicate operations - Remove duplicate event listeners - v5.0",
   "headers": [
     {
       "source": "/api/(.*)",

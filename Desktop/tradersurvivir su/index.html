@@ -10857,7 +10857,7 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
                     <button id="primexbt-interface-cancel-btn" class="px-4 py-2 bg-surface-light border border-border rounded hover:bg-surface transition-colors">
                         Cancelar
                     </button>
-                    <button id="primexbt-interface-import-btn" onclick="handlePrimeXBTInterfaceImport()" class="px-4 py-2 bg-primary text-background rounded hover:bg-secondary transition-colors font-semibold">
+                    <button id="primexbt-interface-import-btn" class="px-4 py-2 bg-primary text-background rounded hover:bg-secondary transition-colors font-semibold">
                         <i class="fas fa-upload mr-2"></i>Importar Operaciones
                     </button>
                 </div>
@@ -27809,7 +27809,7 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
         
         console.log('✅ Función processPrimeXBTInterfaceData cargada y disponible globalmente');
 
-        // Handler para el botón de importar (llamado directamente desde onclick en HTML)
+        // Handler para el botón de importar
         let isHandlerExecuting = false; // Segundo nivel de protección
         
         window.handlePrimeXBTInterfaceImport = async function() {
@@ -27890,9 +27890,8 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
             }
         };
 
-        // NOTA: initPrimeXBTInterfaceModal ELIMINADA - ahora usa onclick="handlePrimeXBTInterfaceImport()" directo en HTML
-
-        document.addEventListener('DOMContentLoaded', async () => {
+        // Inicializar modal y event listeners
+        document.addEventListener('DOMContentLoaded', () => {
             // Inicializar sidebar
             initSidebar();
             
@@ -37785,7 +37784,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Event listeners para botón Importar y cerrar modal ya están definidos en initPrimeXBTInterfaceModal()
+    // Event listener para botón Importar - Clonar para eliminar listeners previos
+    const primexbtInterfaceImportBtn = document.getElementById('primexbt-interface-import-btn');
+    if (primexbtInterfaceImportBtn) {
+        // Clonar botón para eliminar todos los event listeners previos
+        const newImportBtn = primexbtInterfaceImportBtn.cloneNode(true);
+        primexbtInterfaceImportBtn.parentNode.replaceChild(newImportBtn, primexbtInterfaceImportBtn);
+        
+        // Agregar UN SOLO event listener
+        newImportBtn.addEventListener('click', handlePrimeXBTInterfaceImport);
+        console.log('✅ Event listener botón importar agregado');
+    }
 
     // ============================================
     // EVENT LISTENERS PARA BITGET
