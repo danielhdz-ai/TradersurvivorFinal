@@ -1,7 +1,7 @@
 {
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": ".",
-  "comment": "Fix: PrimeXBT duplicate operations - Remove duplicate event listeners - v5.0",
+  "comment": "Debug: Add stack trace to find duplicate call - v6.0",
   "headers": [
     {
       "source": "/api/(.*)",

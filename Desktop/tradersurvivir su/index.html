@@ -27333,10 +27333,12 @@ Mi Cuenta MEXC,2024-10-15,09:30,10:45,BTCUSDT,buy,42500.00,43200.00,0.1,70.00,US
         
         window.processPrimeXBTInterfaceData = async function(rawData, accountId) {
             const now = Date.now();
-            console.log('📄 Procesando datos desde interfaz de PrimeXBT...', { 
+            const executionId = Math.random().toString(36).substr(2, 9);
+            console.log(`📄 [${executionId}] Procesando datos desde interfaz de PrimeXBT...`, { 
                 timestamp: now, 
                 isPrimeXBTProcessing,
-                timeSinceLastExec: now - lastPrimeXBTExecution 
+                timeSinceLastExec: now - lastPrimeXBTExecution,
+                stackTrace: new Error().stack
             });
             
             // Prevenir ejecuciones simultáneas
